@@ -1,0 +1,5 @@
+.gerfin
+.ropeproject
+__pycache__/
+db.sqlite3
+.activate
