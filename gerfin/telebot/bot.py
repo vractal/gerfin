@@ -1,10 +1,9 @@
 from telegram.ext import Updater, CommandHandler
 from .models import Entry
 import re
-from decimal import Decimal
+from .token import token
 
-
-updater = Updater(token='609565119:AAEiBqFAW5FM--Xc_AIdx3ikfAWu7kEhMLk')
+updater = Updater(token=token)
 
 dispatcher = updater.dispatcher
 
@@ -31,7 +30,7 @@ def gasto(bot,update):
         bot.send_message(chat_id=update.message.chat_id,text="Anotado!")
     else:
         bot.send_message(chat_id=update.message.chat_id,
-                            text="Me parece que você não escreveu nada.. Gastou ou não gastou?\
+                            text="Me parece que você não escreveu nada.. Gastou ou não gastou?\n\
                             siga esse formato: <comando> <valor> <descrição>. \nex: /gasto 5 batata frita ")
 
 
@@ -53,14 +52,20 @@ def saque(bot,update):
         bot.send_message(chat_id=update.message.chat_id,text="Anotado!")
     else:
         bot.send_message(chat_id=update.message.chat_id,
-                            text="Me parece que você não escreveu nada.. Gastou ou não gastou?\
-                            siga esse formato: <valor> <detalhes>. \n ex: /gasto 5 batata frita ")
+                            text="Me parece que você não escreveu nada.. Sacou mesmo?\n\
+                            siga esse formato: <valor> <detalhes>. \nex: /gasto 5 batata frita ")
 
+
+saque_handler = CommandHandler("saque",saque)
+dispatcher.add_handler(saque_handler)
 
 def relatorio(bot,update):
     response = ""
     for item in Entry.objects.all():
-        response += "-  " + item.get_amount + "   " + item.description + "\n"
+        if item.type == 'withdraw':
+            response += "+  " + item.get_amount + "   " + item.description + "\n"
+        else:
+            response += "-  " + item.get_amount + "   " + item.description + "\n"
     bot.send_message(chat_id=update.message.chat_id,text=response)
 
 relatorio_handler = CommandHandler("relatorio",relatorio)
