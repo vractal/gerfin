@@ -27,6 +27,7 @@ class User(models.Model):
         return self.name
 
 
+
     def add_entry(self, amount,description='',type='expense'):
         Entry.objects.create(amount=amount,description=description, type=type, user=self)
 
@@ -34,9 +35,24 @@ class User(models.Model):
         user = User.objects.get(telegram_id=self.telegram_id)
         return user.entries.all()
 
+    def get_total_amount(self, period="month"):
+        user = User.objects.get(telegram_id=self.telegram_id)
+        entries = user.get_entries()
+        total = 0
+        if period == "month":
+            for entry in entries:
+                if entry.date.month == timezone.now().month:
+                    total += entry.amount
+
+        return total
+
+
+
     @classmethod
-    def get_user(cls,update):
-        id =  update.effective_user.id
+    def get_user(cls,update=False, telegram_id=False):
+
+
+        id = telegram_id if telegram_id else update.effective_user.id
         try:
             user = cls.objects.get(telegram_id=id)
         except:
