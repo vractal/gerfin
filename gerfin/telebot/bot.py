@@ -87,8 +87,12 @@ def relatorio(bot,update):
     response = ""
     user = User.get_user(update=update)
     entries = user.get_entries()
-    response += "Total do mês: " + user.get_total_amount()
-    response += "Média diária: " + user.get_total_amount()/timezone.now().day
+    total = float(user.get_total_amount())
+    response += "Total do mês: {}".format(total)
+    response += "\n Total do dia: {}".format(float(user.get_total_amount(period="day")))
+
+    response += "\nMédia diária: {}".format(total/timezone.now().day)
+    response += "\n-----------\n\n"
     for item in entries:
         if item.type == 'withdraw':
             response += "+  " + item.get_amount + "   " + item.description + item.date.strftime('    (%d/%m)') + "\n"

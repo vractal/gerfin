@@ -36,23 +36,30 @@ class User(models.Model):
         return user.entries.all()
 
     def get_total_amount(self, period="month"):
-        user = User.objects.get(telegram_id=self.telegram_id)
+        user = User.get_user(telegram_id=self.telegram_id)
+
         entries = user.get_entries()
         total = 0
         if period == "month":
             for entry in entries:
                 if entry.date.month == timezone.now().month:
                     total += entry.amount
-
-        return total
+        elif period == "day":
+            for entry in entries:
+                if entry.date.day == timezone.now().day:
+                    total += entry.amount
+        return str(total)
 
 
 
     @classmethod
-    def get_user(cls,update=False, telegram_id=False):
+    def get_user(cls,update=False,telegram_id=False):
 
+        if telegram_id:
+            id = telegram_id
+        else:
+            id = update.effective_user.id
 
-        id = telegram_id if telegram_id else update.effective_user.id
         try:
             user = cls.objects.get(telegram_id=id)
         except:
